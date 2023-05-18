@@ -1,3 +1,5 @@
+Parallel BFS using OpenMP
+
 #include<iostream>
 #include<stdlib.h>
 #include<queue>
