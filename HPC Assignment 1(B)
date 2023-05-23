@@ -1,74 +1,95 @@
 Parallel DFS using OpenMP –
 
 #include <iostream>
-#include <vector>
+#include <queue>
 #include <stack>
+#include <vector>
 #include <omp.h>
 using namespace std;
-const int MAX = 100000;
+
+int const MAX=100000;
 vector<int> graph[MAX];
 bool visited[MAX];
+
 void dfs(int node) {
-stack<int> s;
-s.push(node);
-while (!s.empty()) {
- int curr_node = s.top();
- s.pop();
- if (!visited[curr_node]) {
- visited[curr_node] = true;
- 
- if (visited[curr_node]) {
- cout << curr_node << " ";
- }
- #pragma omp parallel for
- for (int i = 0; i < graph[curr_node].size(); i++) {
- int adj_node = graph[curr_node][i];
- if (!visited[adj_node]) {
- s.push(adj_node);
- }
- }
- }
-}
-}
-int main() {
-int n, m, start_node;
-cout << "Enter No of Node,Edges,and start node:" ;
-cin >> n >> m >> start_node;
- //n: node,m:edges
- 
-cout << "Enter Pair of edges:" ;
-for (int i = 0; i < m; i++) {
- int u, v;
- 
- cin >> u >> v;
-//u and v: Pair of edges
- graph[u].push_back(v);
- graph[v].push_back(u);
-}
-#pragma omp parallel for
-for (int i = 0; i < n; i++) {
- visited[i] = false;
-}
-dfs(start_node);
-/* for (int i = 0; i < n; i++) {
- if (visited[i]) {
- cout << i << " ";
- }
-}*/
-return 0;
+    std::stack<int> s;
+    s.push(node);
+
+    while (!s.empty()) {
+        int curr;
+
+        #pragma omp critical
+        {
+            curr = s.top();
+            s.pop();
+        }
+
+        if (!visited[curr]) {
+            #pragma omp critical
+            {
+                visited[curr] = true;
+                std::cout << curr << " ";
+            }
+
+            #pragma omp parallel for
+            for (int i = graph[curr].size() - 1; i >= 0; i--) {
+                int adj = graph[curr][i];
+                if (!visited[adj]) {
+                    #pragma omp critical
+                    {
+                        s.push(adj);
+                    }
+                }
+            }
+        }
+    }
 }
 
-Input:- no of node, edges, start node:- 12,11,1
-Enter pair of edges:- 1 2
+
+
+int main(){
+    int n,m,start;
+    cout<<"Enter the no. of nodes and edges: ";
+    cin>>n>>m;
+    cout<<endl;
+    cout<<"Enter the edges: "<<endl;
+    for(int i=0;i<m;i++){
+        int u,v;
+        cin>>u>>v;
+        graph[u].push_back(v);
+        graph[v].push_back(u);
+    }
+    #pragma omp parallel for
+    for(int i=0;i<n;i++){
+        visited[i]=false;
+    }
+    cout<<endl;
+    cout<<"Enter the start node: ";
+    cin>>start;
+    cout<<"The DFS traversal graph is: ";
+    dfs(start);
+    cout<<endl<<"Thank you!!!";
+    
+    
+}
+
+Output:-
+
+Enter the no. of nodes and edges: 12 11
+
+Enter the edges: 
+1 2
 1 7
 1 8
 2 3
 2 6
-8 9
-8 12
 3 4
 3 5
+8 9
+8 12
 9 10
 9 11
 
-Output:- 1 8 12 9 11 10 7 2 6 3 5 4
+Enter the start node: 1
+The DFS traversal graph is: 1 2 3 4 5 6 7 8 9 10 11 12 
+Thank you!!!
