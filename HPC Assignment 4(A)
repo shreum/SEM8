@@ -1,5 +1,11 @@
 Addition of two large vectors using CUDA
 
+// perform following steps in Colab(Preferably) or Jupyter Notebook
+// In Colab change Runtime Type too GPU
+// Cell 1: !nvcc --version
+// Cell 2: !pip install git+https://github.com/andreinechaev/nvcc4jupyter.git
+// Cell 3: %load_ext nvcc_plugin
+// Cell 4: Code-
 #include <iostream> 
 #include <cuda_runtime.h>
 #include /usr/local/cuda/include/cuda_runtime.h
